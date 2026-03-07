@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+
+# environments
+env/
+venv/
+.venv/
+conda-env/
+
+# system files
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# results
+results/logs/
+
+# VSCode
+.vscode/
+
+# large files
+*.pt
+*.pth
