@@ -4,40 +4,10 @@ from typing import List, Dict, Any
 
 from training.train import run_phase1_bert
 
-
-def compute_peak_live_activation_memory_mb(activations: dict) -> float:
-    """
-    Sweep-line computation of peak live activation memory.
-    """
-    if not activations:
-        return 0.0
-
-    events = []
-    for act in activations.values():
-        start = act["first_use_index"]
-        end = act["last_use_index"]
-        size = act["size_bytes"]
-
-        events.append((start, size))
-        events.append((end + 1, -size))
-
-    events.sort()
-
-    current_bytes = 0
-    peak_bytes = 0
-    for _, delta in events:
-        current_bytes += delta
-        peak_bytes = max(peak_bytes, current_bytes)
-
-    return peak_bytes / (1024 ** 2)
-
-
 def summarize_trace(batch_size: int, seq_len: int, trace: Dict[str, Any]) -> Dict[str, Any]:
     total_activation_bytes = sum(
         act["size_bytes"] for act in trace["activations"].values()
     )
-
-    peak_live_activation_mb = compute_peak_live_activation_memory_mb(trace["activations"])
 
     avg_forward_ms = (
         sum(op["duration_ms"] for op in trace["forward_ops"]) / len(trace["forward_ops"])
@@ -60,7 +30,6 @@ def summarize_trace(batch_size: int, seq_len: int, trace: Dict[str, Any]) -> Dic
         "num_backward_ops": len(trace["backward_ops"]),
         "num_activations": len(trace["activations"]),
         "total_activation_mb": total_activation_bytes / (1024 ** 2),
-        "peak_live_activation_mb": peak_live_activation_mb,
         "parameter_memory_mb": trace["parameter_memory_mb"],
         "gradient_memory_mb": trace["gradient_memory_mb"],
         "avg_forward_op_ms": avg_forward_ms,
@@ -80,7 +49,7 @@ def save_summary_csv(rows: List[Dict[str, Any]], out_path: str) -> None:
 
 def main():
     batch_sizes = [1, 2, 4, 6, 8, 12, 16]
-    seq_len = 128
+    seq_len = 512
     summary_rows = []
 
     for bs in batch_sizes:

@@ -3,35 +3,11 @@ import os
 from typing import List, Dict, Any
 
 from training.train import run_phase1_resnet
-def compute_peak_live_activation_memory_mb(activations: dict) -> float:
-    """
-    Compute the maximum live activation memory over execution steps.
-
-    Each activation is considered live on the inclusive interval:
-        [first_use_index, last_use_index]
-
-    Returns memory in MB.
-    """
-    if not activations:
-        return 0.0
-
-    max_step = max(act["last_use_index"] for act in activations.values())
-    peak_live_bytes = 0
-
-    for step in range(max_step + 1):
-        live_bytes = 0
-        for act in activations.values():
-            if act["first_use_index"] <= step <= act["last_use_index"]:
-                live_bytes += act["size_bytes"]
-        peak_live_bytes = max(peak_live_bytes, live_bytes)
-
-    return peak_live_bytes / (1024 ** 2)
 
 def summarize_trace(batch_size: int, trace: Dict[str, Any]) -> Dict[str, Any]:
     total_activation_bytes = sum(
         act["size_bytes"] for act in trace["activations"].values()
     )
-    peak_live_activation_mb = compute_peak_live_activation_memory_mb(trace["activations"])
 
     avg_forward_ms = (
         sum(op["duration_ms"] for op in trace["forward_ops"]) / len(trace["forward_ops"])
@@ -53,7 +29,6 @@ def summarize_trace(batch_size: int, trace: Dict[str, Any]) -> Dict[str, Any]:
         "num_backward_ops": len(trace["backward_ops"]),
         "num_activations": len(trace["activations"]),
         "total_activation_mb": total_activation_bytes / (1024 ** 2),
-        "peak_live_activation_mb": peak_live_activation_mb,
         "avg_forward_op_ms": avg_forward_ms,
         "avg_backward_op_ms": avg_backward_ms,
     }

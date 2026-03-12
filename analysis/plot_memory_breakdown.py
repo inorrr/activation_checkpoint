@@ -23,13 +23,13 @@ def main(model):
     rows = read_csv(input_csv)
 
     batch_sizes = [int(r["batch_size"]) for r in rows]
-    activation_mb = [float(r["peak_live_activation_mb"]) for r in rows]
+    activation_mb = [float(r["total_activation_mb"]) for r in rows]
     peak_memory_mb = [float(r["peak_memory_allocated_mb"]) for r in rows]
 
     os.makedirs(os.path.dirname(output_png), exist_ok=True)
 
     plt.figure(figsize=(8, 5))
-    plt.plot(batch_sizes, activation_mb, marker="o", label="Peak Live Activation Size (MB)")
+    plt.plot(batch_sizes, activation_mb, marker="o", label="Activation Size (MB)")
     plt.plot(batch_sizes, peak_memory_mb, marker="o", label="Peak Allocated GPU Memory (MB)")
     plt.xlabel("Batch Size")
     plt.ylabel("Memory (MB)")
