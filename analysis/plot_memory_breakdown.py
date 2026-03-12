@@ -12,19 +12,23 @@ def read_csv(path: str) -> List[dict]:
 
 def main():
     input_csv = "results/tables/resnet_phase1_summary.csv"
-    output_png = "results/figures/resnet_phase1_memory_vs_batch.png"
+    output_png = "results/figures/resnet_phase1_activation_breakdown.png"
 
     rows = read_csv(input_csv)
+
     batch_sizes = [int(r["batch_size"]) for r in rows]
-    peak_memory = [float(r["peak_memory_allocated_mb"]) for r in rows]
+    activation_mb = [float(r["peak_live_activation_mb"]) for r in rows]
+    peak_memory_mb = [float(r["peak_memory_allocated_mb"]) for r in rows]
 
     os.makedirs(os.path.dirname(output_png), exist_ok=True)
 
     plt.figure(figsize=(8, 5))
-    plt.plot(batch_sizes, peak_memory, marker="o")
+    plt.plot(batch_sizes, activation_mb, marker="o", label="Peak Live Activation Size (MB)")
+    plt.plot(batch_sizes, peak_memory_mb, marker="o", label="Peak Allocated GPU Memory (MB)")
     plt.xlabel("Batch Size")
-    plt.ylabel("Peak Allocated GPU Memory (MB)")
-    plt.title("ResNet-152 Phase 1: Peak Memory vs Batch Size")
+    plt.ylabel("Memory (MB)")
+    plt.title("ResNet-152 Phase 1: Activation Memory vs Peak GPU Memory")
+    plt.legend()
     plt.grid(True)
     plt.tight_layout()
     plt.savefig(output_png, dpi=300)
