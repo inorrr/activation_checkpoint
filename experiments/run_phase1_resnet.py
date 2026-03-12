@@ -29,6 +29,8 @@ def summarize_trace(batch_size: int, trace: Dict[str, Any]) -> Dict[str, Any]:
         "num_backward_ops": len(trace["backward_ops"]),
         "num_activations": len(trace["activations"]),
         "total_activation_mb": total_activation_bytes / (1024 ** 2),
+        "parameter_memory_mb": trace["parameter_memory_mb"],
+        "gradient_memory_mb": trace["gradient_memory_mb"],
         "avg_forward_op_ms": avg_forward_ms,
         "avg_backward_op_ms": avg_backward_ms,
     }

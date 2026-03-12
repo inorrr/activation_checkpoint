@@ -1,5 +1,6 @@
 import csv
 import os
+import sys
 from typing import List
 
 import matplotlib.pyplot as plt
@@ -42,4 +43,9 @@ def main(model):
 
 
 if __name__ == "__main__":
-    main("bert")
+    if len(sys.argv) < 2:
+        print("Usage: python script.py [resnet|bert]")
+        sys.exit(1)
+
+    model = sys.argv[1]
+    main(model)
