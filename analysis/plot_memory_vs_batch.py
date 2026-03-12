@@ -10,9 +10,16 @@ def read_csv(path: str) -> List[dict]:
         return list(csv.DictReader(f))
 
 
-def main():
-    input_csv = "results/tables/resnet_phase1_summary.csv"
-    output_png = "results/figures/resnet_phase1_memory_vs_batch.png"
+def main(model):
+
+    if model == "resnet":
+        input_csv = "results/tables/resnet_phase1_summary.csv"
+        output_png = "results/figures/resnet_phase1_memory_vs_batch.png"
+        title = "ResNet-152 Phase 1: Peak Memory vs Batch Size"
+    else:
+        input_csv = "results/tables/bert_phase1_summary.csv"
+        output_png = "results/figures/bert_phase1_memory_vs_batch.png"
+        title = "BERT Phase 1: Peak Memory vs Batch Size"
 
     rows = read_csv(input_csv)
     batch_sizes = [int(r["batch_size"]) for r in rows]
@@ -24,7 +31,8 @@ def main():
     plt.plot(batch_sizes, peak_memory, marker="o")
     plt.xlabel("Batch Size")
     plt.ylabel("Peak Allocated GPU Memory (MB)")
-    plt.title("ResNet-152 Phase 1: Peak Memory vs Batch Size")
+
+    plt.title(title)
     plt.grid(True)
     plt.tight_layout()
     plt.savefig(output_png, dpi=300)
@@ -34,4 +42,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main("bert")
